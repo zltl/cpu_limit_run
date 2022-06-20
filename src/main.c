@@ -83,8 +83,6 @@ int loop(struct my_conf *conf) {
 
     long nproc = get_nprocs();
 
-    (void)nproc;
-
     long long p_total_cpu_usage = 0;
     long p_utime, p_stime, p_cutime, p_cstime;
 
@@ -173,8 +171,6 @@ int main(int argc, char const *argv[], char *envp[]) {
             "and args follow by ' -- ' , for example: cpu_limit_run -- du -sh "
             "*"),
         CONF_CMD_INT(conf, percent, "50", "maximun percent of cpu usage"),
-        // CONF_CMD_TIME(conf, interval_ms, "10", "interval of cpu usage
-        // check"),
         CONF_CMD_END(),
     };
 
@@ -194,9 +190,6 @@ int main(int argc, char const *argv[], char *envp[]) {
         return -1;
     }
     conf->interval_ms = 10;
-
-    // conf_print_conf(stdout, cmds);
-    // return -1;
 
     int pid = 0;
     r_argc++;
