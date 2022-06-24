@@ -21,6 +21,7 @@ struct my_conf {
 static struct my_conf my_conf;
 static struct my_conf *conf = &my_conf;
 
+// set my_conf by command line arguments
 int parse_args(parse_command_t *cmds, int argc, char const *argv[]) {
     if (conf_init(cmds) < 0) {
         fprintf(stderr, "conf_init failed\n");
@@ -33,12 +34,16 @@ int parse_args(parse_command_t *cmds, int argc, char const *argv[]) {
     return 0;
 }
 
+// print usage message to stdout
 void usage(parse_command_t *cmds, char const *name) {
     printf("Usage: %s [options]\n\n", name);
     conf_print_usage(stdout, cmds);
     printf("\n");
 }
 
+// fork program and exec commands stored in argv, using environment same as
+// current process.
+// return pid of child on parent process
 int fork_exec(int argc, const char *argv[], char *envp[]) {
     int pid = 0;
     (void)argc;
@@ -56,6 +61,7 @@ int fork_exec(int argc, const char *argv[], char *envp[]) {
     return pid;
 }
 
+// get total cpu time jiffies
 long long get_total_cpu_usage() {
     long long user, nice, system, idle;
     FILE *fp = fopen("/proc/stat", "r");
@@ -68,16 +74,20 @@ long long get_total_cpu_usage() {
     return user + nice + system + idle;
 }
 
+// we store time stats of process in a circular queue array, each element store
+// a struct time_history.
 struct time_history {
     long utime, stime, cutime, cstime;
     long long total_cpu_usage;
 };
-
 #define MAX_HISTORY_LEN 30
 struct time_history time_history[MAX_HISTORY_LEN];
 int cur_history_idx = 0;
 
 #define MAX_PATH_LEN 256
+
+// main loop, calculate current cpu time of process, send SIGSTOP or SIGCOND to
+// satisfy the limit.
 int loop(struct my_conf *conf) {
     char stat_file[MAX_PATH_LEN];
 
