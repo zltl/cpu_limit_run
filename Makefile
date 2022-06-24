@@ -1,4 +1,4 @@
-.PHONY: clean all cpu_limit_run
+.PHONY: clean all cpu_limit_run test
 
 .ONESHELL:
 
@@ -25,6 +25,12 @@ export
 
 cpu_limit_run:
 	$(MAKE) -C $(ROOT_DIR)/src
+
+$(TARGET_DIR)/loop: test/loop.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+test: cpu_limit_run $(TARGET_DIR)/loop
+	$(TARGET_DIR)/cpu_limit_run --percent 20 -- $(TARGET_DIR)/loop
 
 clean:
 	rm -rf $(ROOT_DIR)/target
